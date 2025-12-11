@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     environment {
         DOCKER_IMAGE = 'faith901/jenkins_server'
         DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
@@ -10,34 +14,26 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                echo "Cloning the repository if it doesn't exist..."
-                sh '''
-                if [ ! -d ".git" ]; then
-                    git clone https://github.com/byiringirofabrice/jenkins_server.git .
-                else
-                    echo "Repository already exists. Skipping clone."
-                    git fetch --all
-                    git reset --hard origin/main
-                fi
-                '''
+                echo "Checking out repository..."
+                cleanWs()
+                git url: 'https://github.com/byiringirofabrice/jenkins_server.git', branch: 'main'
             }
         }
 
         stage('Build') {
             steps {
-                echo "Building the project..."
+                echo "Listing project files..."
                 sh 'ls -la'
             }
         }
 
         stage('Test') {
             steps {
-                echo "Running tests..."
-                // Add test commands here later
+                echo "Running tests (placeholder)..."
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
                     docker.withServer('tcp://localhost:2375') {
@@ -53,9 +49,9 @@ pipeline {
         stage('Deploy to Local Docker Host') {
             steps {
                 sh '''
-                    docker stop jenkins_server || echo "Container not running..."
-                    docker rm -f jenkins_server || echo "No container to remove..."
-                    docker run -d --name jenkins_server -p 8090:3000 ${DOCKER_IMAGE}:latest
+                    docker stop jenkins_server || true
+                    docker rm -f jenkins_server || true
+                    docker run -d --name jenkins_server -p 8090:3000 faith901/jenkins_server:latest
                 '''
             }
         }
