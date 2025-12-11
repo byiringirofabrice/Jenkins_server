@@ -15,7 +15,7 @@ pipeline {
                 echo "Cloning the repository if it doesn't exist..."
                 bat '''
                 if not exist ".git" (
-                    git clone https://github.com/dama4/my-web-app.git .
+                    git clone https://github.com/byiringirofabrice/jenkins_server.git .
                 ) else (
                     echo Repository already exists. Skipping clone.
                     git fetch --all
@@ -66,9 +66,9 @@ pipeline {
                 // FIXED: Used %DOCKER_IMAGE% variable instead of "username/..."
                 // Added logic to stop the container only if it is actually running to prevent errors
                 bat """
-                    docker stop my-web-app || echo "Container not running..."
-                    docker rm -f my-web-app || echo "No container to remove..."
-                    docker run -d --name my-web-app -p 8090:3000 ${DOCKER_IMAGE}:latest
+                    docker stop jenkins_server || echo "Container not running..."
+                    docker rm -f jenkins_server || echo "No container to remove..."
+                    docker run -d --name jenkins_server -p 8090:3000 ${DOCKER_IMAGE}:latest
                 """
             }
         }
